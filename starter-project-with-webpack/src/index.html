@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#6c63ff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Story App" />
+    <title>Story App</title>
+
+    <!-- Leaflet CSS (tanpa SRI, bust cache) -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css?v=nocache"
+    />
+
+    <!-- Opsional: pastikan map terlihat walau styles.css belum mengatur #homeMap -->
+    <style>
+      #homeMap { height: 380px; width: 100%; border-radius: 12px; margin-top: 12px; }
+    </style>
+  </head>
+
+  <body>
+    <!-- Aksesibilitas -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <header>
+      <div class="main-header container">
+        <a class="brand-name" href="#/home">App</a>
+
+        <nav id="navigation-drawer" class="navigation-drawer" aria-label="Navigasi utama">
+          <ul id="nav-list" class="nav-list">
+            <li><a href="#/home">Beranda</a></li>
+            <li><a href="#/add">Tambah Story</a></li>
+            <li><a href="#/favorite">Tersimpan</a></li>
+            <li><a href="#/about">About</a></li>
+            <li class="auth-nav login-nav" style="display: block;"><a href="#/login">Login</a></li>
+            <li class="auth-nav register-nav" style="display: block;"><a href="#/register">Register</a></li>
+            <li class="auth-nav logout-nav" style="display: none;"><a href="#" id="logout-link">Logout</a></li>
+          </ul>
+        </nav>
+
+        <button id="drawer-button" class="drawer-button" aria-label="Buka navigasi">☰</button>
+      </div>
+    </header>
+
+    <!-- Placeholder SPA -->
+    <main id="main-content" class="main-content" tabindex="-1"></main>
+
+    <!-- Leaflet JS (tanpa SRI, bust cache) -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js?v=nocache"></script>
+
+    <!-- Redirect default ke /home saat first-load tanpa hash (agar tidak 404) -->
+    <script>
+      if (!location.hash) {
+        location.replace('#/home'); // tidak menambah history
+      }
+    </script>
+
+    <!-- Entry point akan di-inject oleh webpack -->
+  </body>
+</html>

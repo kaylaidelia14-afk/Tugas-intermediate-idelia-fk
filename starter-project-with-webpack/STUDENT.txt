@@ -1,0 +1,2 @@
+APP_URL=https://kaylaidelia14-afk.github.io/tugas-idelia/
+MAP_SERVICE_API_KEY=
