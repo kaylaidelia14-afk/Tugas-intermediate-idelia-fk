@@ -250,7 +250,8 @@ async function initServiceWorker() {
       }
       
       const swPath = `${basePath}/sw.js`;
-      const scope = basePath || '/';
+      // Scope harus menggunakan trailing slash untuk sesuai dengan Service Worker path
+      const scope = basePath ? `${basePath}/` : '/';
       
       console.log('[main] Registering Service Worker:', swPath, 'with scope:', scope);
       
