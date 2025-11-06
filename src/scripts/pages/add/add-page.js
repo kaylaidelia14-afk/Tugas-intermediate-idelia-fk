@@ -39,7 +39,7 @@ export default class AddPage {
           </div>
           
           <div class="form-group" style="margin-top:12px">
-            <label>
+            <label for="includeLocation">
               <input type="checkbox" id="includeLocation" />
               Sertakan lokasi GPS
             </label>
