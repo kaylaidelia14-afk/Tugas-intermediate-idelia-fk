@@ -1,14 +1,15 @@
 // Service Worker untuk PWA
 const CACHE_NAME = 'story-app-v1';
 
-// Get base path dari scope service worker
+// Get base path dari service worker location
 const getBasePath = () => {
-  // Service worker scope biasanya adalah base path
-  const scope = self.registration?.scope || self.location.pathname;
-  // Extract base path (misal: /Tugas-intermediate-idelia-fk/)
-  const match = scope.match(/^https?:\/\/[^\/]+(\/[^\/]+)/);
-  if (match && match[1] !== '/') {
-    return match[1];
+  // Service worker file location (misal: /Tugas-intermediate-idelia-fk/sw.js)
+  const swPath = self.location.pathname;
+  // Extract base path dari path service worker
+  // Jika path = /Tugas-intermediate-idelia-fk/sw.js, base = /Tugas-intermediate-idelia-fk
+  const pathParts = swPath.split('/').filter(p => p && p !== 'sw.js');
+  if (pathParts.length > 0) {
+    return '/' + pathParts.join('/');
   }
   return '';
 };
