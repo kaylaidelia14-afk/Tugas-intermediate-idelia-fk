@@ -154,7 +154,7 @@ export default class HomePage {
         return `
         <article class="story-item" role="listitem" data-idx="${idx}" data-story-id="${item.id || idx}" style="position:relative">
           <img src="${item.photoUrl}"
-               alt="${item.description ? this.#escape(item.description) : 'Foto story'}"
+               alt="${item.name ? `${this.#escape(item.name)} - ${item.description ? this.#escape(item.description) : 'Foto story'}` : item.description ? this.#escape(item.description) : 'Foto story'}"
                loading="eager"
                decoding="async"
                style="cursor:pointer"
@@ -275,7 +275,7 @@ export default class HomePage {
 
       const popup = `
         <div style="min-width:200px">
-          <img src="${s.photoUrl}" alt="${this.#escape(s.description ?? 'Foto')}"
+          <img src="${s.photoUrl}" alt="${s.name ? `${this.#escape(s.name)} - ${this.#escape(s.description ?? 'Foto story')}` : this.#escape(s.description ?? 'Foto story')}"
                style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px" />
           <strong>${this.#escape(s.name ?? 'Tanpa Nama')}</strong><br/>
           <span style="font-size:12px">${this.#escape((s.description ?? '').slice(0,100))}${(s.description||'').length>100?'…':''}</span><br/>

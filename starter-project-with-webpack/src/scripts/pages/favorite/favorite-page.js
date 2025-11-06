@@ -134,7 +134,7 @@ export default class FavoritePage {
               ${fav.photoUrl ? `
                 <img 
                   src="${fav.photoUrl}" 
-                  alt="${fav.description || 'Story image'}" 
+                  alt="${fav.name ? `${fav.name} - ${fav.description || 'Gambar story'}` : fav.description || 'Gambar story favorit'}" 
                   style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:12px"
                   loading="lazy"
                   onerror="this.style.display='none'">

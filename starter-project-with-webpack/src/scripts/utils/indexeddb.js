@@ -317,24 +317,39 @@ export async function getAllFavorites() {
       const request = store.getAll();
       
       request.onsuccess = () => {
-        const result = request.result;
-        // Ensure result is an array
-        if (!Array.isArray(result)) {
-          console.warn('[indexeddb] getAllFavorites returned non-array:', typeof result, result);
+        try {
+          const result = request.result;
+          // Ensure result is always an array
+          if (!result) {
+            resolve([]);
+          } else if (Array.isArray(result)) {
+            resolve(result);
+          } else {
+            // If result is not an array, convert to array or return empty
+            console.warn('[indexeddb] getAllFavorites returned non-array:', typeof result, result);
+            // Try to convert to array if it's an object
+            if (typeof result === 'object' && result !== null) {
+              const arrayResult = Object.values(result);
+              resolve(Array.isArray(arrayResult) ? arrayResult : []);
+            } else {
+              resolve([]);
+            }
+          }
+        } catch (err) {
+          console.error('[indexeddb] Error processing getAllFavorites result:', err);
           resolve([]);
-        } else {
-          resolve(result);
         }
       };
       
       request.onerror = () => {
         console.error('[indexeddb] Error in getAllFavorites request:', request.error);
-        reject(request.error);
+        // Return empty array instead of rejecting to prevent app crash
+        resolve([]);
       };
     });
   } catch (err) {
-    console.error('Error getting favorites:', err);
-    // Return empty array on any error
+    console.error('[indexeddb] Error getting favorites:', err);
+    // Always return empty array on any error
     return [];
   }
 }
