@@ -5,9 +5,16 @@ const CACHE_NAME = 'story-app-v1';
 const getBasePath = () => {
   // Service worker file location (misal: /Tugas-intermediate-idelia-fk/sw.js)
   const swPath = self.location.pathname;
+  console.log('[SW] Service Worker pathname:', swPath);
+  
   // Extract base path dari path service worker
   // Jika path = /Tugas-intermediate-idelia-fk/sw.js, base = /Tugas-intermediate-idelia-fk
-  const pathParts = swPath.split('/').filter(p => p && p !== 'sw.js');
+  if (swPath.includes('/Tugas-intermediate-idelia-fk/')) {
+    return '/Tugas-intermediate-idelia-fk';
+  }
+  
+  // Fallback: extract dari path
+  const pathParts = swPath.split('/').filter(p => p && p !== 'sw.js' && p !== '');
   if (pathParts.length > 0) {
     return '/' + pathParts.join('/');
   }
@@ -40,19 +47,29 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[SW] Caching App Shell files:', appShellFiles);
-        // Cache App Shell files
-        return Promise.all(
+        // Cache App Shell files dengan fetch untuk error handling yang lebih baik
+        return Promise.allSettled(
           appShellFiles.map(url => {
-            return cache.add(url).catch(err => {
-              console.warn(`[SW] Failed to cache ${url}:`, err);
-              // Continue even if one file fails
-              return null;
-            });
+            return fetch(url)
+              .then(response => {
+                if (response.ok) {
+                  return cache.put(url, response);
+                } else {
+                  console.warn(`[SW] Failed to cache ${url}: HTTP ${response.status}`);
+                  return null;
+                }
+              })
+              .catch(err => {
+                console.warn(`[SW] Failed to cache ${url}:`, err.message);
+                // Continue even if one file fails
+                return null;
+              });
           })
         );
       })
-      .then(() => {
-        console.log('[SW] App Shell cached successfully');
+      .then((results) => {
+        const successCount = results.filter(r => r.status === 'fulfilled' && r.value !== null).length;
+        console.log(`[SW] App Shell cached: ${successCount}/${appShellFiles.length} files`);
       })
       .catch((err) => {
         console.error('[SW] Cache install error:', err);
@@ -122,35 +139,51 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // HTML requests - Cache First dengan fallback ke index.html
+  // HTML requests - Network First dengan fallback ke cached App Shell
   const acceptHeader = request.headers.get('accept') || '';
   if (acceptHeader.includes('text/html')) {
     event.respondWith(
-      caches.match(request)
+      fetch(request)
         .then((response) => {
-          if (response) {
-            return response;
+          // Cache successful HTML responses
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
           }
-          return fetch(request)
+          return response;
+        })
+        .catch(() => {
+          // Offline - return cached index.html (App Shell)
+          const basePath = getBasePath();
+          console.log('[SW] Offline - returning cached App Shell from:', `${basePath}/index.html`);
+          
+          // Try multiple fallback paths
+          return caches.match(`${basePath}/index.html`)
             .then((response) => {
-              // Cache successful HTML responses
-              if (response && response.status === 200) {
-                const responseClone = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                  cache.put(request, responseClone);
-                });
+              if (response) {
+                console.log('[SW] Found cached index.html');
+                return response;
               }
-              return response;
-            })
-            .catch(() => {
-              // Offline - return cached index.html (App Shell)
-              const basePath = getBasePath();
-              return caches.match(`${basePath}/index.html`)
-                .then((response) => {
-                  return response || caches.match(`${basePath}/`)
-                    .then((fallback) => {
-                      return fallback || new Response('Offline - Aplikasi tidak dapat diakses', { 
-                        status: 503,
+              // Try root path
+              return caches.match(`${basePath}/`)
+                .then((fallback) => {
+                  if (fallback) {
+                    console.log('[SW] Found cached root');
+                    return fallback;
+                  }
+                  // Try without base path
+                  return caches.match('/index.html')
+                    .then((rootFallback) => {
+                      if (rootFallback) {
+                        console.log('[SW] Found cached root index.html');
+                        return rootFallback;
+                      }
+                      // Last resort - return basic HTML
+                      console.warn('[SW] No cached App Shell found');
+                      return new Response('<!DOCTYPE html><html><head><title>Offline</title></head><body><h1>Aplikasi sedang offline</h1><p>Silakan cek koneksi internet Anda.</p></body></html>', { 
+                        status: 200,
                         headers: { 'Content-Type': 'text/html; charset=utf-8' }
                       });
                     });

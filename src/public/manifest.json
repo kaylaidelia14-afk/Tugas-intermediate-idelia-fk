@@ -82,7 +82,7 @@
       "name": "Tambah Story",
       "short_name": "Tambah",
       "description": "Tambahkan story baru",
-      "url": "/#/add",
+      "url": "/Tugas-intermediate-idelia-fk/#/add",
       "icons": [
         {
           "src": "images/logo.png",
@@ -95,7 +95,7 @@
       "name": "Lihat Story",
       "short_name": "Story",
       "description": "Lihat semua story",
-      "url": "/#/home",
+      "url": "/Tugas-intermediate-idelia-fk/#/home",
       "icons": [
         {
           "src": "images/logo.png",

@@ -240,13 +240,24 @@ async function initServiceWorker() {
   if ('serviceWorker' in navigator) {
     try {
       // Get base path untuk GitHub Pages
-      const basePath = location.pathname.split('/').slice(0, -1).join('/') || '';
+      // Jika pathname = /Tugas-intermediate-idelia-fk/ atau /Tugas-intermediate-idelia-fk/#/home
+      const pathname = location.pathname;
+      let basePath = '';
+      
+      // Cek apakah ada base path (untuk GitHub Pages)
+      if (pathname.includes('/Tugas-intermediate-idelia-fk')) {
+        basePath = '/Tugas-intermediate-idelia-fk';
+      }
+      
       const swPath = `${basePath}/sw.js`;
+      const scope = basePath || '/';
+      
+      console.log('[main] Registering Service Worker:', swPath, 'with scope:', scope);
       
       const registration = await navigator.serviceWorker.register(swPath, {
-        scope: basePath || '/'
+        scope: scope
       });
-      console.log('[main] Service Worker registered:', registration);
+      console.log('[main] Service Worker registered successfully:', registration);
       
       // Check for updates
       registration.addEventListener('updatefound', () => {
