@@ -239,7 +239,13 @@ async function renderRoute() {
 async function initServiceWorker() {
   if ('serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      // Get base path untuk GitHub Pages
+      const basePath = location.pathname.split('/').slice(0, -1).join('/') || '';
+      const swPath = `${basePath}/sw.js`;
+      
+      const registration = await navigator.serviceWorker.register(swPath, {
+        scope: basePath || '/'
+      });
       console.log('[main] Service Worker registered:', registration);
       
       // Check for updates
