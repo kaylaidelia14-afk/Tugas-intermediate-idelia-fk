@@ -250,14 +250,12 @@ async function initServiceWorker() {
       }
       
       const swPath = `${basePath}/sw.js`;
-      // Scope harus menggunakan trailing slash untuk sesuai dengan Service Worker path
-      const scope = basePath ? `${basePath}/` : '/';
       
-      console.log('[main] Registering Service Worker:', swPath, 'with scope:', scope);
+      console.log('[main] Registering Service Worker:', swPath);
       
-      const registration = await navigator.serviceWorker.register(swPath, {
-        scope: scope
-      });
+      // Jangan berikan scope secara eksplisit - biarkan browser menentukan dari Service Worker path
+      // Browser akan otomatis menggunakan scope yang sesuai dengan lokasi Service Worker
+      const registration = await navigator.serviceWorker.register(swPath);
       console.log('[main] Service Worker registered successfully:', registration);
       
       // Check for updates

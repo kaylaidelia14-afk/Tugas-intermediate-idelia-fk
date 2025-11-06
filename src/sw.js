@@ -234,12 +234,16 @@ self.addEventListener('push', (event) => {
     }
   }
   
+  // Get base path untuk GitHub Pages
+  const basePath = getBasePath();
+  const defaultIcon = basePath ? `${basePath}/images/logo.png` : '/images/logo.png';
+  
   // Dynamic notification from server data
   const title = data.title || data.notification?.title || 'Story App';
   const body = data.body || data.notification?.body || data.message || 'Anda mendapat notifikasi baru';
-  const icon = data.icon || data.notification?.icon || '/images/logo.png';
+  const icon = data.icon || data.notification?.icon || defaultIcon;
   const image = data.image || data.notification?.image;
-  const badge = data.badge || '/images/logo.png';
+  const badge = data.badge || defaultIcon;
   
   const options = {
     body: body,
@@ -255,7 +259,7 @@ self.addEventListener('push', (event) => {
       {
         action: 'view',
         title: 'Lihat Detail',
-        icon: '/images/logo.png',
+        icon: defaultIcon,
       },
       {
         action: 'close',
@@ -277,11 +281,15 @@ self.addEventListener('notificationclick', (event) => {
   
   const data = event.notification.data;
   
+  // Get base path untuk GitHub Pages
+  const basePath = getBasePath();
+  const homePath = basePath ? `${basePath}/#/home` : '/#/home';
+  
   // Handle action buttons
   if (event.action === 'view' && data.storyId) {
     // Navigate to story detail
     event.waitUntil(
-      clients.openWindow(`/#/home?storyId=${data.storyId}`)
+      clients.openWindow(`${homePath}?storyId=${data.storyId}`)
     );
   } else if (event.action === 'close') {
     // Just close the notification
@@ -289,12 +297,12 @@ self.addEventListener('notificationclick', (event) => {
   } else if (data.storyId) {
     // Default click behavior - navigate to story
     event.waitUntil(
-      clients.openWindow(`/#/home?storyId=${data.storyId}`)
+      clients.openWindow(`${homePath}?storyId=${data.storyId}`)
     );
   } else {
     // Navigate to home
     event.waitUntil(
-      clients.openWindow('/#/home')
+      clients.openWindow(homePath)
     );
   }
 });
