@@ -1,2 +1,2 @@
-APP_URL=https://kaylaidelia14-afk.github.io/tugas-idel-asah/
+APP_URL=https://github.com/kaylaidelia14-afk/asah-idel-intermediate.git
 MAP_SERVICE_API_KEY=
