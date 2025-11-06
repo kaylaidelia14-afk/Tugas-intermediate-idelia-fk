@@ -236,6 +236,91 @@ async function renderRoute() {
 }
 
 /* ========== SERVICE WORKER & PWA ========== */
+let deferredPrompt = null;
+
+// Handle beforeinstallprompt event untuk PWA installation
+window.addEventListener('beforeinstallprompt', (e) => {
+  console.log('[PWA] beforeinstallprompt event fired');
+  // Prevent the mini-infobar from appearing on mobile
+  e.preventDefault();
+  // Stash the event so it can be triggered later
+  deferredPrompt = e;
+  // Show install button or banner
+  showInstallPrompt();
+});
+
+// Show install prompt button
+function showInstallPrompt() {
+  // Check if already installed
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('[PWA] App already installed');
+    return;
+  }
+  
+  // Create or show install button
+  let installBtn = document.getElementById('pwa-install-btn');
+  if (!installBtn) {
+    installBtn = document.createElement('button');
+    installBtn.id = 'pwa-install-btn';
+    installBtn.innerHTML = '📱 Install App';
+    installBtn.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      background: #6c63ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    `;
+    installBtn.addEventListener('click', handleInstallClick);
+    document.body.appendChild(installBtn);
+  }
+  installBtn.style.display = 'block';
+}
+
+// Handle install button click
+async function handleInstallClick() {
+  if (!deferredPrompt) {
+    console.log('[PWA] No install prompt available');
+    return;
+  }
+  
+  // Show the install prompt
+  deferredPrompt.prompt();
+  
+  // Wait for the user to respond to the prompt
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log('[PWA] User response to install prompt:', outcome);
+  
+  // Clear the deferredPrompt
+  deferredPrompt = null;
+  
+  // Hide install button
+  const installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) {
+    installBtn.style.display = 'none';
+  }
+}
+
+// Handle app installed event
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] App installed successfully');
+  deferredPrompt = null;
+  const installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) {
+    installBtn.style.display = 'none';
+  }
+});
+
 async function initServiceWorker() {
   if ('serviceWorker' in navigator) {
     try {
